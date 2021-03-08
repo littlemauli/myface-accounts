@@ -3,6 +3,9 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using MyFace.Models.Database;
 using MyFace.Models.Request;
+using System;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace MyFace.Repositories
 {
@@ -60,8 +63,25 @@ namespace MyFace.Repositories
 
         public User Create(CreateUserRequest newUser)
         {
+          //creating hashing and salt here
+        byte[] salt = new byte[128 / 8];
+        using (var rng = new RNGCryptoServiceProvider())
+        {
+            rng.GetBytes(salt);
+        }
+         var stuff = Convert.ToBase64String(salt);
+
+  string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            password: newUser.Password,
+            salt: salt,
+            prf: KeyDerivationPrf.HMACSHA1,
+            iterationCount: 10000,
+            numBytesRequested: 256 / 8));
+
+
             var insertResponse = _context.Users.Add(new User
-            {
+            {   Salt= stuff, 
+                Hashed_password= hashed,
                 FirstName = newUser.FirstName,
                 LastName = newUser.LastName,
                 Email = newUser.Email,

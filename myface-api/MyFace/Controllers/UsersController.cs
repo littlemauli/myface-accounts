@@ -30,7 +30,12 @@ namespace MyFace.Controllers
             var user = _users.GetById(id);
             return new UserResponse(user);
         }
+        // [HttpGet("createUser")]
+        // public IActionResult UserCreation()
+        // {
 
+
+        // }
         [HttpPost("create")]
         public IActionResult Create([FromBody] CreateUserRequest newUser)
         {

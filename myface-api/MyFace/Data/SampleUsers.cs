@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MyFace.Models.Database;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System;
 
 namespace MyFace.Data
 {
@@ -119,8 +122,22 @@ namespace MyFace.Data
 
         private static User CreateRandomUser(int index)
         {
+             byte[] salt = new byte[128 / 8];
+        using (var rng = new RNGCryptoServiceProvider())
+        {
+            rng.GetBytes(salt);
+        }
+         var stuff = Convert.ToBase64String(salt);
+
             return new User
-            {
+            {   //Enter a password: Xtw9NMgx
+                Salt = stuff,
+                Hashed_password =Convert.ToBase64String(KeyDerivation.Pbkdf2(
+            password: "password",
+            salt:  salt,
+            prf: KeyDerivationPrf.HMACSHA1,
+            iterationCount: 10000,
+            numBytesRequested: 256 / 8)),
                 FirstName = _data[index][0],
                 LastName = _data[index][1],
                 Username = _data[index][2],
