@@ -66,6 +66,8 @@ namespace MyFace
 
             app.UseRouting();
 
+            //use authentication here? Authenticate scheme?
+
             app.UseCors(CORS_POLICY_NAME);
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });

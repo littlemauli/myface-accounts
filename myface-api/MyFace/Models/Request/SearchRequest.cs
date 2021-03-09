@@ -1,4 +1,6 @@
-﻿namespace MyFace.Models.Request
+﻿using System.Web;
+
+namespace MyFace.Models.Request
 {
     public class SearchRequest
     {
