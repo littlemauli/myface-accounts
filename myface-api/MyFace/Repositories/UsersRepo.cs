@@ -19,8 +19,9 @@ namespace MyFace.Repositories
         User Create(CreateUserRequest newUser);
         User Update(int id, UpdateUserRequest update);
         void Delete(int id);
+        User Authenticate(string username, string password);
     }
-    
+
     public class UsersRepo : IUsersRepo
     {
         private readonly MyFaceDbContext _context;
@@ -29,11 +30,11 @@ namespace MyFace.Repositories
         {
             _context = context;
         }
-        
+
         public IEnumerable<User> Search(UserSearchRequest search)
         {
             return _context.Users
-                .Where(p => search.Search == null || 
+                .Where(p => search.Search == null ||
                             (
                                 p.FirstName.ToLower().Contains(search.Search) ||
                                 p.LastName.ToLower().Contains(search.Search) ||
@@ -48,7 +49,7 @@ namespace MyFace.Repositories
         public int Count(UserSearchRequest search)
         {
             return _context.Users
-                .Count(p => search.Search == null || 
+                .Count(p => search.Search == null ||
                             (
                                 p.FirstName.ToLower().Contains(search.Search) ||
                                 p.LastName.ToLower().Contains(search.Search) ||
@@ -63,6 +64,19 @@ namespace MyFace.Repositories
                 .Single(user => user.Id == id);
         }
 
+        public User Authenticate(string username, string password)
+        {
+            var userInDatabase = GetByUsername(username);
+
+            var hashedPassword = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                  password: password,
+                  salt: Convert.FromBase64String(userInDatabase.Salt),
+                  prf: KeyDerivationPrf.HMACSHA1,
+                  iterationCount: 10000,
+                  numBytesRequested: 256 / 8));
+
+            return (userInDatabase.Hashed_password == hashedPassword) ? userInDatabase : null;
+        }
         public User GetByUsername(string username)
         {
             return _context.Users
@@ -71,25 +85,26 @@ namespace MyFace.Repositories
 
         public User Create(CreateUserRequest newUser)
         {
-          //creating hashing and salt here
-        byte[] salt = new byte[128 / 8];
-        using (var rng = new RNGCryptoServiceProvider())
-        {
-            rng.GetBytes(salt);
-        }
-         var stuff = Convert.ToBase64String(salt);
+            //creating hashing and salt here
+            byte[] salt = new byte[128 / 8];
+            using (var rng = new RNGCryptoServiceProvider())
+            {
+                rng.GetBytes(salt);
+            }
+            var stuff = Convert.ToBase64String(salt);
 
-  string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: newUser.Password,
-            salt: salt,
-            prf: KeyDerivationPrf.HMACSHA1,
-            iterationCount: 10000,
-            numBytesRequested: 256 / 8));
+            string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                      password: newUser.Password,
+                      salt: salt,
+                      prf: KeyDerivationPrf.HMACSHA1,
+                      iterationCount: 10000,
+                      numBytesRequested: 256 / 8));
 
 
             var insertResponse = _context.Users.Add(new User
-            {   Salt= stuff, 
-                Hashed_password= hashed,
+            {
+                Salt = stuff,
+                Hashed_password = hashed,
                 FirstName = newUser.FirstName,
                 LastName = newUser.LastName,
                 Email = newUser.Email,

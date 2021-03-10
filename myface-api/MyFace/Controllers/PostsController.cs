@@ -5,7 +5,7 @@ using MyFace.Models.Response;
 using MyFace.Repositories;
 using System.Text;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyFace.Controllers
 {    
@@ -38,6 +38,7 @@ namespace MyFace.Controllers
         }
 
         [HttpPost("create")]
+        [Authorize]
         public IActionResult Create([FromHeader]string authorization,[FromBody] CreatePostRequest newPost)
         {    
          string authHeader = Request.Headers["Authorization"];
@@ -70,6 +71,7 @@ namespace MyFace.Controllers
 
 } else {
     //Handle what happens if that isn't the case
+    Console.WriteLine("bad header");
     return BadRequest("The authorization header is either empty or isn't Basic.");
 }
 

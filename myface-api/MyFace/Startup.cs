@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -47,6 +48,8 @@ namespace MyFace
             
             services.AddTransient<IPostsRepo, PostsRepo>();
             services.AddTransient<IUsersRepo, UsersRepo>();
+            services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
+            ("BasicAuthentication", null);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
