@@ -38,42 +38,43 @@ namespace MyFace.Controllers
         }
 
         [HttpPost("create")]
-        [Authorize]
+        [ServiceFilter(typeof(AuthFilter))]
         public IActionResult Create([FromHeader]string authorization,[FromBody] CreatePostRequest newPost)
         {    
-         string authHeader = Request.Headers["Authorization"];
-         Console.WriteLine(authHeader);
-        if (authHeader != null && authHeader.StartsWith("Basic")) {
-    string encodedUsernamePassword = authHeader.Substring("Basic ".Length).Trim();
-    Encoding encoding = Encoding.GetEncoding("iso-8859-1");
-    string usernamePassword = encoding.GetString(Convert.FromBase64String(encodedUsernamePassword));
+            
+//          string authHeader = Request.Headers["Authorization"];
+//          Console.WriteLine(authHeader);
+//         if (authHeader != null && authHeader.StartsWith("Basic")) {
+//     string encodedUsernamePassword = authHeader.Substring("Basic ".Length).Trim();
+//     Encoding encoding = Encoding.GetEncoding("iso-8859-1");
+//     string usernamePassword = encoding.GetString(Convert.FromBase64String(encodedUsernamePassword));
 
-    int seperatorIndex = usernamePassword.IndexOf(':');
+//     int seperatorIndex = usernamePassword.IndexOf(':');
 
-    var header_username = usernamePassword.Substring(0, seperatorIndex);
-    var header_password = usernamePassword.Substring(seperatorIndex + 1);
+//     var header_username = usernamePassword.Substring(0, seperatorIndex);
+//     var header_password = usernamePassword.Substring(seperatorIndex + 1);
 
-     var userInDatabase =_users.GetByUsername(header_username);
+//      var userInDatabase =_users.GetByUsername(header_username);
      
-      var Header_Hashed_password =Convert.ToBase64String(KeyDerivation.Pbkdf2(
-            password: header_password,
-            salt:  Convert.FromBase64String(userInDatabase.Salt),
-            prf: KeyDerivationPrf.HMACSHA1,
-            iterationCount: 10000,
-            numBytesRequested: 256 / 8));
+//       var Header_Hashed_password =Convert.ToBase64String(KeyDerivation.Pbkdf2(
+//             password: header_password,
+//             salt:  Convert.FromBase64String(userInDatabase.Salt),
+//             prf: KeyDerivationPrf.HMACSHA1,
+//             iterationCount: 10000,
+//             numBytesRequested: 256 / 8));
 
-      if( userInDatabase.Hashed_password != Header_Hashed_password) 
-      {
-           Console.WriteLine("The password doesn't match the database");
-          return Unauthorized("The password doesn't match the database");
+//       if( userInDatabase.Hashed_password != Header_Hashed_password) 
+//       {
+//            Console.WriteLine("The password doesn't match the database");
+//           return Unauthorized("The password doesn't match the database");
          
-      }     
+//       }     
 
-} else {
-    //Handle what happens if that isn't the case
-    Console.WriteLine("bad header");
-    return BadRequest("The authorization header is either empty or isn't Basic.");
-}
+// } else {
+   
+//     Console.WriteLine("bad header");
+//     return Unauthorized("The authorization header is either empty or isn't Basic.");
+// }
 
             if (!ModelState.IsValid)
             {

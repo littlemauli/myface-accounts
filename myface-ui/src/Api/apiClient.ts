@@ -1,4 +1,6 @@
-﻿export interface ListResponse<T> {
+﻿import { stringify } from "node:querystring";
+
+export interface ListResponse<T> {
     items: T[];
     totalNumberOfItems: number;
     page: number;
@@ -39,6 +41,29 @@ export interface NewPost {
     imageUrl: string;
     userId: number;
 }
+
+
+// create logging function
+
+export async function login(username: string, password: string){
+ 
+        
+        var authKey = window.btoa(`${username}:${password}`);
+        // var authHeader = `Basic ${authKey}`;
+        // var httpHeaders = {'Authorization' : authHeader};
+        // var headers= new Headers(httpHeaders);   
+        const response = await fetch('http://localhost:5001/login',{
+        
+        headers: {
+            "Authorization": `Basic ${authKey}`
+        }
+    });
+    // if (!response.ok) {
+    //     throw new Error(await response.json())
+    // }
+    return response.status;
+      //  return await response.json();
+    }
 
 export async function fetchUsers(searchTerm: string, page: number, pageSize: number): Promise<ListResponse<User>> {
     const response = await fetch(`https://localhost:5001/users?search=${searchTerm}&page=${page}&pageSize=${pageSize}`);

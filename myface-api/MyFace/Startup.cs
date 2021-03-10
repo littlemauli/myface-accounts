@@ -6,7 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MyFace.Controllers;
 using MyFace.Repositories;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace MyFace
 {
@@ -48,8 +50,12 @@ namespace MyFace
             
             services.AddTransient<IPostsRepo, PostsRepo>();
             services.AddTransient<IUsersRepo, UsersRepo>();
-            services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
-            ("BasicAuthentication", null);
+            //services.AddTransient<IActionFilter, AuthFilter>();
+            services.AddScoped<AuthFilter>();
+            
+
+            // services.AddAuthentication("BasicAuthentication").AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>
+            // ("BasicAuthentication", null);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -72,6 +78,7 @@ namespace MyFace
             //use authentication here? Authenticate scheme?
 
             app.UseCors(CORS_POLICY_NAME);
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }
